@@ -366,7 +366,7 @@ destroy_conf() {
 check_software() {
   local item
 
-  for item in /usr/sbin/setkey /usr/bin/openssl /usr/sbin/ip ; do
+  for item in /usr/sbin/setkey /usr/bin/openssl /sbin/ip ; do
     if [ ! -x $item ]; then
       $log "Needed program $item not found, exiting"
       errno=9; return 9
