@@ -205,8 +205,8 @@ setup_tunnel() {
     echo -e "remote anonymous {\n  generate_policy on;" >> $conf
   else
     data=$(nslookup "$remote" | awk 'NR == 5 {print $3}')
-    test -n "$data" && remote="$data"
-    echo -e "remote \"$1\" {\n  remote_address $remote;" >> $conf
+    test -z "$data" && data="$remote"
+    echo -e "remote \"$1\" {\n  remote_address $data;" >> $conf
     echo "$data" >> $peerconf
   fi
 
