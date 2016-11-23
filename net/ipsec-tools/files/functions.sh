@@ -65,7 +65,7 @@ manage_sa() {
     *) errno=3; return 3 ;;
   esac
 
-  get_fieldval gate src "$(/usr/sbin/ip route get $4)"
+  get_fieldval gate src "$(/sbin/ip route get $4)"
   if [ -z "$gate" ]; then
     $log "Can not find outbound IP for $4"
     errno=3; return 3
@@ -84,7 +84,7 @@ spd$spdcmd $ritem $litem any -P in ipsec esp/tunnel/$4-$gate/require;
   test -n "$5" && gate=$5
 
   for ritem in $3 ; do
-    (sleep 3; /usr/sbin/ip route $rtcmd $ritem via $gate) &
+    (sleep 3; /sbin/ip route $rtcmd $ritem via $gate) &
   done
 }
 
