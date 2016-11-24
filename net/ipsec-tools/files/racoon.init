@@ -19,6 +19,8 @@ confIPMode=
 
 confPh1ID=0
 
+PATH="$PATH:/usr/sbin:/sbin"
+
 log="logger -t init.d/racoon[$$] "
 
 . /etc/racoon/functions.sh
@@ -103,7 +105,7 @@ setup_p1() {
 }
 
 setup_fw() {
-  local cmd=/usr/sbin/iptables
+  local cmd=iptables
   local mode
 
   case "$1" in
@@ -365,8 +367,15 @@ destroy_conf() {
 
 check_software() {
   local item
+  local needcert=0
+  local tools="setkey ip"
 
-  for item in /usr/sbin/setkey /usr/bin/openssl /sbin/ip ; do
+  config_load racoon
+  config_foreach needcert=1 certificate
+  [ $needcert = 1 ] && tools="$tools openssl"
+
+  for item in $tools ; do
+    item=$(type -P $item || echo $item)
     if [ ! -x $item ]; then
       $log "Needed program $item not found, exiting"
       errno=9; return 9
@@ -380,8 +389,8 @@ cleanup_conf() {
   config_foreach destroy_conf racoon
   config_foreach destroy_tunnel tunnel
 
-  /usr/sbin/setkey -P -F
-  /usr/sbin/setkey -F
+  setkey -P -F
+  setkey -F
 }
 
 check_dir() {
@@ -433,7 +442,7 @@ start_service() {
   config_foreach setup_cert certificate
 
   procd_open_instance
-  procd_set_param command /usr/sbin/racoon
+  procd_set_param command racoon
   test -n "$confIPMode" && procd_append_param command -$confIPMode
   procd_append_param command -F -f $confDir/racoon.conf
   procd_set_param file $confDir/racoon.conf

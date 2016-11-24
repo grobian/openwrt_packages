@@ -24,7 +24,7 @@ get_fieldval() {
 }
 
 manage_fw() {
-  local cmd=/usr/sbin/iptables
+  local cmd=iptables
   local mode
   local item
 
@@ -65,7 +65,7 @@ manage_sa() {
     *) errno=3; return 3 ;;
   esac
 
-  get_fieldval gate src "$(/sbin/ip route get $4)"
+  get_fieldval gate src "$(ip route get $4)"
   if [ -z "$gate" ]; then
     $log "Can not find outbound IP for $4"
     errno=3; return 3
@@ -77,14 +77,14 @@ manage_sa() {
       echo "
 spd$spdcmd $litem $ritem any -P out ipsec esp/tunnel/$gate-$4/require;
 spd$spdcmd $ritem $litem any -P in ipsec esp/tunnel/$4-$gate/require;
-" | /usr/sbin/setkey -c 1>&2
+" | setkey -c 1>&2
     done
   done
 
   test -n "$5" && gate=$5
 
   for ritem in $3 ; do
-    (sleep 3; /sbin/ip route $rtcmd $ritem via $gate) &
+    (sleep 3; ip route $rtcmd $ritem via $gate) &
   done
 }
 
